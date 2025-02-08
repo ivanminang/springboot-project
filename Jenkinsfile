@@ -8,11 +8,4 @@ pipeline {
             }
         }
     }
-    stages {
-        build('Build') {
-            steps {
-                echo 'Building..'
-            }
-        }
-    }
 }
