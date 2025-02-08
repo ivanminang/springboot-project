@@ -3,7 +3,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = dockerhub-credentials('dockerhub')
+        // DOCKERHUB_CREDENTIALS = dockerhub-credentials('dockerhub')
         IMAGE_TAG = "V1.0.${BUILD_NUMBER}"  // Set the image tag as an environment variable
     }
     options {
@@ -40,11 +40,22 @@ pipeline {
             }
         }
 
+
         stage('Login') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                // Securely access DockerHub credentials
+                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
+                    // Login to DockerHub using the credentials
+                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                }
             }
         }
+
+        // stage('Login') {
+        //     steps {
+        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        //     }
+        // }
 
             stage('Build and Push Image') {
                 steps {
