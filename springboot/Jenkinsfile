@@ -1,11 +1,5 @@
-
-
 pipeline {
     agent any
-    environment {
-        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
-        IMAGE_TAG = "V1.0.${BUILD_NUMBER}"  // Set the image tag as an environment variable
-    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         disableConcurrentBuilds()
@@ -13,13 +7,22 @@ pipeline {
         timestamps()
     }
     stages {
+        stage('Login') {
+            environment {
+		       DOCKERHUB_CREDENTIALS=credentials('dockerhub-credentials')
+	        }
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+		}
         stage('Testing') {
             agent {
                 docker { image 'maven:3.8.4-eclipse-temurin-17-alpine' }
             }
             steps {
                 sh '''
-                // cd demo-project
+                cd springboot
                 mvn test
                 '''
             }
@@ -40,21 +43,23 @@ pipeline {
             }
         }
 
-        stage('Login') {
+        // stage("Quality Gate") {
+        //     steps {
+        //       timeout(time: 1, unit: 'HOURS') {
+        //         waitForQualityGate abortPipeline: true
+        //       }
+        //     }
+        // }
+
+        stage('Build and Push Image') {
             steps {
-                sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+                sh """
+                cd ${WORKSPACE}/springboot
+                docker build -t ivanminang/springboot:${IMAGE_TAG} .
+                docker push ivanminang/springboot:${IMAGE_TAG}
+                """
             }
         }
-
-            stage('Build and Push Image') {
-                steps {
-                    sh """
-                    cd ${WORKSPACE}/demo-project
-                    docker build -t ivanminang/springboot:${IMAGE_TAG} .
-                    docker push ivanminang/springboot:${IMAGE_TAG}
-                    """
-                }
-            }
 
         // stage('Update Image Tag in Helm Repo for ArgoCD') {
         //     steps {
