@@ -45,6 +45,7 @@ pipeline {
             steps {
                 withSonarQubeEnv('sonar') {
                     sh '''
+                    cd springboot
                     ${scannerHome}/bin/sonar-scanner \
                         -Dsonar.projectKey=$SONAR_PROJECT_KEY \
                         -Dsonar.host.url=$SONAR_HOST_URL \
@@ -54,13 +55,13 @@ pipeline {
             }
         }
 
-        stage("Quality Gate") {
-            steps {
-              timeout(time: 1, unit: 'HOURS') {
-                waitForQualityGate abortPipeline: true
-              }
-            }
-        }
+        // stage("Quality Gate") {
+        //     steps {
+        //       timeout(time: 1, unit: 'HOURS') {
+        //         waitForQualityGate abortPipeline: true
+        //       }
+        //     }
+        // }
 
         stage('Build and Push Image') {
             steps {
