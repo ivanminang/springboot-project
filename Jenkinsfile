@@ -39,7 +39,7 @@ pipeline {
                 CI = 'true'
                 scannerHome = '/opt/sonar-scanner'
                 SONAR_PROJECT_KEY = 'springbootapp'  
-                SONAR_HOST_URL = 'http://3.139.102.189:9000'  
+                SONAR_HOST_URL = 'http://18.221.243.27:9000'  
                 SONAR_TOKEN = credentials('jenkins-sonar-token')  
             }
             steps {
