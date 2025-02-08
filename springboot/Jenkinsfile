@@ -3,7 +3,7 @@
 pipeline {
     agent any
     environment {
-        DOCKERHUB_CREDENTIALS = dockerhub-credentials('dockerhub')
+        DOCKERHUB_CREDENTIALS = credentials('dockerhub')
         IMAGE_TAG = "V1.0.${BUILD_NUMBER}"  // Set the image tag as an environment variable
     }
     options {
@@ -19,7 +19,7 @@ pipeline {
             }
             steps {
                 sh '''
-                // cd springboot
+                // cd demo-project
                 mvn test
                 '''
             }
@@ -49,7 +49,7 @@ pipeline {
             stage('Build and Push Image') {
                 steps {
                     sh """
-                    cd ${WORKSPACE}/springboot
+                    cd ${WORKSPACE}/demo-project
                     docker build -t ivanminang/springboot:${IMAGE_TAG} .
                     docker push ivanminang/springboot:${IMAGE_TAG}
                     """
