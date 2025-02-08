@@ -30,15 +30,23 @@ pipeline {
 
         stage('SonarQube Analysis') {
             agent {
-                docker { image 'sonarsource/sonar-scanner-cli:11.1' }
+                docker { image 'sonarsource/sonar-scanner-cli:5.0.1' }
             }
             environment {
                 CI = 'true'
                 scannerHome = '/opt/sonar-scanner'
+                SONAR_PROJECT_KEY = 'springbootapp'  
+                SONAR_HOST_URL = 'http://18.222.251.184:9000'  
+                SONAR_TOKEN = credentials('jenkins-sonar-token')  
             }
             steps {
                 withSonarQubeEnv('sonar') {
-                    sh "${scannerHome}/bin/sonar-scanner"
+                    sh '''
+                    ${scannerHome}/bin/sonar-scanner \
+                        -Dsonar.projectKey=$SONAR_PROJECT_KEY \
+                        -Dsonar.host.url=$SONAR_HOST_URL \
+                        -Dsonar.login=$SONAR_TOKEN
+                    '''
                 }
             }
         }
