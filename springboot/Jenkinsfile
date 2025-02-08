@@ -22,7 +22,7 @@ pipeline {
             }
             steps {
                 sh '''
-                cd springboot
+                cd springboot/src
                 mvn test
                 '''
             }
@@ -54,7 +54,7 @@ pipeline {
         stage('Build and Push Image') {
             steps {
                 sh """
-                cd ${WORKSPACE}/springboot
+                cd ${WORKSPACE}/springboot/src
                 docker build -t ivanminang/springboot:${IMAGE_TAG} .
                 docker push ivanminang/springboot:${IMAGE_TAG}
                 """
