@@ -1,11 +1,5 @@
-
-
 pipeline {
     agent any
-    environment {
-        // DOCKERHUB_CREDENTIALS = dockerhub-credentials('dockerhub')
-        IMAGE_TAG = "V1.0.${BUILD_NUMBER}"  // Set the image tag as an environment variable
-    }
     options {
         buildDiscarder(logRotator(numToKeepStr: '20'))
         disableConcurrentBuilds()
@@ -13,13 +7,22 @@ pipeline {
         timestamps()
     }
     stages {
+        stage('Login') {
+            environment {
+		       DOCKERHUB_CREDENTIALS=credentials('dockerhub-credentials')
+	        }
+
+			steps {
+				sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+			}
+		}
         stage('Testing') {
             agent {
                 docker { image 'maven:3.8.4-eclipse-temurin-17-alpine' }
             }
             steps {
                 sh '''
-                // cd springboot
+                cd springboot
                 mvn test
                 '''
             }
@@ -40,32 +43,23 @@ pipeline {
             }
         }
 
-
-        stage('Login') {
-            steps {
-                // Securely access DockerHub credentials
-                withCredentials([usernamePassword(credentialsId: 'dockerhub-credentials', usernameVariable: 'DOCKERHUB_CREDENTIALS_USR', passwordVariable: 'DOCKERHUB_CREDENTIALS_PSW')]) {
-                    // Login to DockerHub using the credentials
-                    sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
-                }
-            }
-        }
-
-        // stage('Login') {
+        // stage("Quality Gate") {
         //     steps {
-        //         sh 'echo $DOCKERHUB_CREDENTIALS_PSW | docker login -u $DOCKERHUB_CREDENTIALS_USR --password-stdin'
+        //       timeout(time: 1, unit: 'HOURS') {
+        //         waitForQualityGate abortPipeline: true
+        //       }
         //     }
         // }
 
-            stage('Build and Push Image') {
-                steps {
-                    sh """
-                    cd ${WORKSPACE}/springboot
-                    docker build -t ivanminang/springboot:${IMAGE_TAG} .
-                    docker push ivanminang/springboot:${IMAGE_TAG}
-                    """
-                }
+        stage('Build and Push Image') {
+            steps {
+                sh """
+                cd ${WORKSPACE}/springboot
+                docker build -t ivanminang/springboot:${IMAGE_TAG} .
+                docker push ivanminang/springboot:${IMAGE_TAG}
+                """
             }
+        }
 
         // stage('Update Image Tag in Helm Repo for ArgoCD') {
         //     steps {
