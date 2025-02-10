@@ -79,7 +79,7 @@ pipeline {
                 withCredentials([string(credentialsId: 'kubernetes-token', variable: 'KUBERNETES_TOKEN')]) {
                     sh """
                     export KUBECONFIG=/var/lib/jenkins/.kube/config
-                    echo "$KUBERNETES_TOKEN" | kubectl config set-credentials jenkins-user --token=$(cat)
+                    echo "$KUBERNETES_TOKEN" | kubectl config set-credentials jenkins-user --token=\$(cat)
                     kubectl config set-context jenkins-context --cluster=kubernetes --user=jenkins-user
                     kubectl config use-context jenkins-context
 
