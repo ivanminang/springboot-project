@@ -74,23 +74,20 @@ pipeline {
         }
 
 
-
-        stages {
         stage('Deploy to Kubernetes') {
-            environment {
-		       KUBERNETES_CREDENTIALS=credentials('kubernetes-token')
-	        }
-
-            withCredentials([string(credentialsId: 'kubernets-token', variable: 'KUBERNETES_CREDENTIALS')]) {
-    // some block
-            }
             steps {
-                sh """
-                BUILD_NUMBER=$(echo $BUILD_NUMBER)  # Get Jenkins build number
-                sed -i "s/\${BUILD_NUMBER}/$BUILD_NUMBER/g" deployment.yaml
-                kubectl apply -f ${WORKSPACE}/manifest/deployment.yaml
-                kubectl apply -f ${WORKSPACE}/manifest/service.yaml
-                """
+                withCredentials([string(credentialsId: 'kubernetes-token', variable: 'KUBERNETES_TOKEN')]) {
+                    sh """
+                    export KUBECONFIG=/var/lib/jenkins/.kube/config
+                    echo "$KUBERNETES_TOKEN" | kubectl config set-credentials jenkins-user --token=$(cat)
+                    kubectl config set-context jenkins-context --cluster=kubernetes --user=jenkins-user
+                    kubectl config use-context jenkins-context
+
+                    sed -i "s/\\\${BUILD_NUMBER}/$BUILD_NUMBER/g" ${WORKSPACE}/manifest/deployment.yaml
+                    kubectl apply -f ${WORKSPACE}/manifest/deployment.yaml
+                    kubectl apply -f ${WORKSPACE}/manifest/service.yaml
+                    """
+                }
             }
         }
 
