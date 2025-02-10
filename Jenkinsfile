@@ -74,22 +74,22 @@ pipeline {
         }
 
 
-        stage('Deploy to Kubernetes') {
-            steps {
-                withCredentials([string(credentialsId: 'kubernets-token', variable: 'KUBERNETES_TOKEN')]) {
-                    sh """
-                    export KUBECONFIG=/var/lib/jenkins/.kube/config
-                    echo "$KUBERNETES_TOKEN" | kubectl config set-credentials jenkins-user --token=\$(cat)
-                    kubectl config set-context jenkins-context --cluster=kubernetes --user=jenkins-user
-                    kubectl config use-context jenkins-context
-
-                    sed -i "s/\\\${BUILD_NUMBER}/$BUILD_NUMBER/g" ${WORKSPACE}/manifest/deployment.yaml
-                    kubectl apply -f ${WORKSPACE}/manifest/deployment.yaml
-                    kubectl apply -f ${WORKSPACE}/manifest/service.yaml
-                    """
-                }
-            }
-        }
+        // stage('Deploy to Kubernetes') {
+        //     steps {
+        //         withCredentials([string(credentialsId: 'kubernets-token', variable: 'KUBERNETES_TOKEN')]) {
+        //             sh """
+        //             kubectl get pod
+        //             export KUBECONFIG=/var/lib/jenkins/.kube/config
+        //             echo "$KUBERNETES_TOKEN" | kubectl config set-credentials jenkins-user --token=\$(cat)
+        //             kubectl config set-context jenkins-context --cluster=kubernetes --user=jenkins-user
+        //             kubectl config use-context jenkins-context
+        //             sed -i "s/\\\${BUILD_NUMBER}/$BUILD_NUMBER/g" ${WORKSPACE}/manifest/deployment.yaml
+        //             kubectl apply -f ${WORKSPACE}/manifest/deployment.yaml
+        //             kubectl apply -f ${WORKSPACE}/manifest/service.yaml
+        //             """
+        //         }
+        //     }
+        // }
 
         // stage('Update Image Tag in Helm Repo for ArgoCD') {
         //     steps {
