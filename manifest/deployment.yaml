@@ -16,7 +16,8 @@ spec:
     spec:
       containers:
         - name: springboot
-          image: ivanminang/springboot:${BUILD_NUMBER} # Dynamically set by Jenkins
+          image: ivanminang/springboot:V1.0.21 # 
+          # image: ivanminang/springboot:${BUILD_NUMBER} # Dynamically set by Jenkins
           ports:
             - containerPort: 8080
           env:
