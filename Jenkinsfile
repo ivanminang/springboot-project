@@ -76,7 +76,7 @@ pipeline {
 
         stage('Deploy to Kubernetes') {
             steps {
-                withCredentials([string(credentialsId: 'kubernetes-token', variable: 'KUBERNETES_TOKEN')]) {
+                withCredentials([string(credentialsId: 'kubernets-token', variable: 'KUBERNETES_TOKEN')]) {
                     sh """
                     export KUBECONFIG=/var/lib/jenkins/.kube/config
                     echo "$KUBERNETES_TOKEN" | kubectl config set-credentials jenkins-user --token=\$(cat)
