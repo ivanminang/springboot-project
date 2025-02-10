@@ -20,11 +20,10 @@ locals {
   volume_size = 50
 
   # common_tags = {
-  #   "id"             = "2024"
-  #   "name"           = "demo-project-ec2"
-  #   "owner"          = "jurist"
+  #   "id"             = "2025"
+  #   "owner"          = "me"
   #   "environment"    = "dev"
-  #   "project"        = "demo-project"
+  #   "project"        = "springboot"
   #   "create_by"      = "Terraform"
   #   "cloud_provider" = "aws"
   #   "company"        = "DEL"

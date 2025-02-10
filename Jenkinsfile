@@ -73,6 +73,27 @@ pipeline {
             }
         }
 
+
+
+        stages {
+        stage('Deploy to Kubernetes') {
+            environment {
+		       KUBERNETES_CREDENTIALS=credentials('kubernetes-token')
+	        }
+
+            withCredentials([string(credentialsId: 'kubernets-token', variable: 'KUBERNETES_CREDENTIALS')]) {
+    // some block
+            }
+            steps {
+                sh """
+                BUILD_NUMBER=$(echo $BUILD_NUMBER)  # Get Jenkins build number
+                sed -i "s/\${BUILD_NUMBER}/$BUILD_NUMBER/g" deployment.yaml
+                kubectl apply -f ${WORKSPACE}/manifest/deployment.yaml
+                kubectl apply -f ${WORKSPACE}/manifest/service.yaml
+                """
+            }
+        }
+
         // stage('Update Image Tag in Helm Repo for ArgoCD') {
         //     steps {
         //         sh """
